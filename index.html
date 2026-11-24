@@ -193,4 +193,99 @@ document.getElementById('left').onpointerdown=()=>move(-1);document.getElementBy
 addEventListener('keydown',e=>{if(['ArrowLeft','ArrowRight','a','A','d','D'].includes(e.key))e.preventDefault();if(e.key==='ArrowLeft'||e.key.toLowerCase()==='a')move(-1);if(e.key==='ArrowRight'||e.key.toLowerCase()==='d')move(1);if((e.key==='Enter'||e.key===' ')&&!running)reset();});
 addEventListener('pointerdown',e=>{if(!running||e.target.closest('button'))return;move(e.clientX<innerWidth/2?-1:1);});
 addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);});
+</script><style>
+#runfx{position:fixed;inset:0;pointer-events:none;z-index:6;overflow:hidden}
+#runfx .asset{position:absolute;left:50%;top:50%;transform-origin:center bottom;object-fit:contain;filter:drop-shadow(0 14px 10px rgba(0,0,0,.38));user-select:none;pointer-events:none;will-change:transform,width,height}
+#runfx .pickup{filter:drop-shadow(0 0 12px #ffd32f) drop-shadow(0 14px 8px #0008)}
+#ability{position:fixed;z-index:7;left:50%;top:74px;transform:translateX(-50%);display:flex;gap:7px;align-items:center;padding:7px 11px;border:1px solid #ffffff22;border-radius:999px;background:#080806bb;backdrop-filter:blur(8px);font:900 9px Arial;letter-spacing:2px;color:#ffd32f;opacity:0;transition:.2s}
+#ability.show{opacity:1}
+#chase{position:fixed;z-index:7;left:50%;bottom:78px;transform:translateX(-50%);width:min(360px,60vw);opacity:0;transition:.25s}
+#chase.show{opacity:1}
+#chase .ct{display:flex;justify-content:space-between;color:#fff;font:900 8px Arial;letter-spacing:2px;margin-bottom:5px}
+#chase .bar{height:6px;border-radius:9px;background:#ffffff22;overflow:hidden}
+#chase .bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#ffd32f,#f33);box-shadow:0 0 12px #f33;transition:width .12s}
+#deathFX{position:fixed;inset:0;z-index:9;pointer-events:none;background:radial-gradient(circle,transparent 25%,#e11 100%);opacity:0}
+@keyframes hit{0%,100%{opacity:0}15%{opacity:.55}35%{opacity:.1}}
+@media(max-width:700px){#ability{top:58px;font-size:8px}#chase{bottom:90px;width:72vw}}
+</style>
+<div id="runfx"></div>
+<div id="ability"><span id="abilityName">SHIELD</span><b id="abilityTime">READY</b></div>
+<div id="chase"><div class="ct"><span>POLICE CHASE</span><b id="chaseText">0%</b></div><div class="bar"><i id="chaseBar"></i></div></div>
+<div id="deathFX"></div>
+<script>
+(()=>{
+const FX=document.getElementById('runfx'), abilityEl=document.getElementById('ability'), abilityName=document.getElementById('abilityName'), abilityTime=document.getElementById('abilityTime'), chaseEl=document.getElementById('chase'), chaseBar=document.getElementById('chaseBar'), chaseText=document.getElementById('chaseText'), deathFX=document.getElementById('deathFX');
+const IMG={
+ dog:'https://i.pinimg.com/736x/f2/6b/7b/f26b7b750915b749541dc40783a22195.jpg',
+ scooter:'https://www.wrapstyle.com/content/img_cache/1200x675/1690368701-Italjet-Dragster-200-Lady-Hoonigan-Wrap-Wrapstyle03-2.jpeg',
+ pothole:'https://commons.wikimedia.org/wiki/Special:Redirect/file/Road_pothole.jpg',
+ vimal:'https://tpackss.globaltobaccocontrol.org/sites/default/files/styles/500x500/public/pack_images/IND_MA_VAI_T4_03_03_002_0_4.JPG?itok=MXlZa5vR'
+};
+const keys={};addEventListener('keydown',e=>{keys[e.key.toLowerCase()]=true;if(['arrowup','arrowdown',' '].includes(e.key.toLowerCase()))e.preventDefault();});addEventListener('keyup',e=>keys[e.key.toLowerCase()]=false);
+let A=false, lane2=1, tx=0, jump=0, slide=0, runT=0, score2=0, cash2=0, spd=15, spawn2=.7, shake=0, police=null, chase=0, chaseStarted=false, ability=null, abilityT=0, invuln=0, dead=false, deathT=0;
+const L=[-2.7,0,2.7], obs=[];
+function img(type,z){const el=document.createElement('img');el.className='asset '+(type==='vimal'?'pickup':'');el.src=IMG[type];el.alt='';FX.appendChild(el);return el}
+function project(z,x,y=0){const dz=Math.max(1,z+12), s=Math.min(4.8,58/dz), px=innerWidth/2+x*s*innerWidth/900, py=innerHeight*.53+y*s*innerHeight/900+dz*0.8;return [px,py,s]}
+function makeCar(pol=false){const g=new THREE.Group(),body=mat(pol?0x10161b:0x26364a,.45,.25),white=mat(0xf2f2ee,.55),redm=mat(0xd51f2d,.5),bluem=mat(0x246bff,.35);
+ const b=cube(1.5,.65,2.7,body,0,.65,0);g.add(b);b.position.set(0,.65,0);
+ const cab=cube(1.15,.55,1.35,white,0,1.15,-.15);g.add(cab);
+ for(const x of [-.68,.68])for(const z of [-.9,.9]){const w=new THREE.Mesh(new THREE.CylinderGeometry(.22,.22,.18,16),black);w.rotation.z=Math.PI/2;w.position.set(x,.27,z);g.add(w)}
+ if(pol){for(const c of [redm,bluem]){const l=new THREE.Mesh(new THREE.BoxGeometry(.42,.12,.12),c);l.position.set(c===redm?-.24:.24,1.52,0);g.add(l)}}
+ return g}
+function spawn2o(){
+ const r=Math.random(), l=L[Math.floor(Math.random()*3)];
+ let o={z:-100,x:l,lane:Math.floor((l+2.7)/2.7),kind:'scooter',el:null,mesh:null,jumpable:false,slideable:false,hit:false};
+ if(r<.24){o.kind='dog';o.el=img('dog',o.z)}
+ else if(r<.44){o.kind='scooter';o.el=img('scooter',o.z)}
+ else if(r<.58){o.kind='pothole';o.el=img('pothole',o.z);o.jumpable=true}
+ else if(r<.70){o.kind='traffic';o.mesh=makeCar(false);o.mesh.position.set(o.x,0,o.z);scene.add(o.mesh);o.jumpable=true}
+ else if(r<.78){o.kind='barrier';o.mesh=cube(1.9,1.8,.35,red,-.0,.9,o.z);o.mesh.position.x=o.x;scene.add(o.mesh);o.slideable=true}
+ else if(r<.87){o.kind='vimal';o.el=img('vimal',o.z)}
+ else {o.kind='power';o.mesh=new THREE.Mesh(new THREE.OctahedronGeometry(.45),goldMat);o.mesh.position.set(o.x,1.15,o.z);scene.add(o.mesh);o.power=['shield','magnet','turbo'][Math.floor(Math.random()*3)];o.jumpable=true}
+ obs.push(o);
+}
+function cleanup(o){if(o.el)o.el.remove();if(o.mesh)scene.remove(o.mesh)}
+function setAbility(t){ability=t;abilityT=t==='shield'?7:t==='magnet'?9:5;abilityName.textContent=t.toUpperCase();abilityEl.classList.add('show')}
+function move2(d){if(!A||dead)return;lane2=Math.max(0,Math.min(2,lane2+d));tx=L[lane2]}
+function doJump(){if(!A||dead||jump>0.02||slide>0)return;jump=1}
+function doSlide(){if(!A||dead||jump>0.1)return;slide=1}
+addEventListener('keydown',e=>{if(e.key==='ArrowLeft'||e.key.toLowerCase()==='a')move2(-1);if(e.key==='ArrowRight'||e.key.toLowerCase()==='d')move2(1);if(e.key==='ArrowUp'||e.key===' ')doJump();if(e.key==='ArrowDown'||e.key.toLowerCase()==='s'||e.key.toLowerCase()==='c')doSlide()});
+document.getElementById('left')?.addEventListener('pointerdown',()=>move2(-1));document.getElementById('right')?.addEventListener('pointerdown',()=>move2(1));
+const touch=document.querySelector('.touch');if(touch){const b=document.createElement('button');b.textContent='↑';b.onpointerdown=doJump;touch.appendChild(b);const c=document.createElement('button');c.textContent='↓';c.onpointerdown=doSlide;touch.appendChild(c)}
+function start2(){A=true;dead=false;score2=0;cash2=0;spd=15;spawn2=.4;chase=0;chaseStarted=false;ability=null;abilityT=0;invuln=0;deathT=0;obs.splice(0).forEach(cleanup);if(police){scene.remove(police);police=null}document.getElementById('menu')?.classList.add('hide');document.getElementById('gameover')?.classList.add('hide');document.getElementById('score').textContent='00000';document.getElementById('coins').textContent='0';}
+function die2(reason='YOU GOT COOKED'){if(dead)return;dead=true;A=false;deathT=0;invuln=0;deathFX.style.animation='hit .6s';document.getElementById('overTitle').textContent=reason;document.getElementById('overText').textContent='Score '+score2+' · VIMAL '+cash2+' · The street had other plans.';document.getElementById('gameover')?.classList.remove('hide')}
+function update2(dt){
+ if(!A&&!dead)return;
+ if(dead){deathT+=dt;player.rotation.z=THREE.MathUtils.damp(player.rotation.z,-1.45,7,dt);player.rotation.x=THREE.MathUtils.damp(player.rotation.x,.55,5,dt);player.position.y=THREE.MathUtils.damp(player.position.y,-.15,5,dt);camera.position.x+=Math.sin(deathT*35)*.08;if(deathT>.9){deathT=.9}return}
+ runT+=dt;score2=Math.floor(score2+dt*18);spd=Math.min(32,15+runT*.42);spawn2-=dt;
+ if(spawn2<=0){spawn2=Math.max(.32,.7-runT*.004)+Math.random()*.18;spawn2o()}
+ if(keys['arrowleft']||keys['a']){move2(-1);keys['arrowleft']=keys['a']=false}if(keys['arrowright']||keys['d']){move2(1);keys['arrowright']=keys['d']=false}
+ if(keys['arrowup']||keys[' ']){doJump();keys['arrowup']=keys[' ']=false}if(keys['arrowdown']||keys['s']||keys['c']){doSlide();keys['arrowdown']=keys['s']=keys['c']=false}
+ if(jump>0){jump+=dt*2.8;if(jump>=Math.PI){jump=0}else{player.position.y=Math.sin(jump)*1.5}}
+ else player.position.y=THREE.MathUtils.damp(player.position.y,0,12,dt);
+ if(slide>0){slide+=dt*3;if(slide>=Math.PI){slide=0;player.scale.y=1}else player.scale.y=.62}
+ else player.scale.y=THREE.MathUtils.damp(player.scale.y,1,12,dt);
+ player.position.x=THREE.MathUtils.damp(player.position.x,tx,10,dt);player.rotation.z=THREE.MathUtils.damp(player.rotation.z,(tx-player.position.x)*-.18,8,dt);
+ for(let i=obs.length-1;i>=0;i--){const o=obs[i];o.z+=spd*dt;if(o.mesh)o.mesh.position.z=o.z;if(o.mesh&&o.kind==='power'){o.mesh.rotation.x+=dt*2;o.mesh.rotation.y+=dt*3}
+   if(o.el){const [px,py,s]=project(o.z,o.x,o.kind==='pothole'?-1.55:0);o.el.style.left=px+'px';o.el.style.top=py+'px';const w=(o.kind==='dog'?95:o.kind==='scooter'?120:o.kind==='pothole'?170:70)*s;o.el.style.width=w+'px';o.el.style.height='auto';o.el.style.transform='translate(-50%,-100%) scale('+s*.75+')';o.el.style.zIndex=String(Math.floor(1000-o.z))}
+   if(o.kind==='vimal'&&Math.abs(o.z-3)<2.3&&Math.abs(o.x-player.position.x)<1.35){cash2++;score2+=100;cleanup(o);obs.splice(i,1);continue}
+   if(o.kind==='power'&&Math.abs(o.z-3)<2.2&&Math.abs(o.x-player.position.x)<1.3){setAbility(o.power);cleanup(o);obs.splice(i,1);continue}
+   if(o.z>1.7&&o.z<4.2&&Math.abs(o.x-player.position.x)<1.05){
+      const safeJump=jump>0.35;const safeSlide=slide>0.35;
+      if(o.kind==='pothole'&&!safeJump || o.kind==='barrier'&&!safeSlide || ['dog','scooter','traffic'].includes(o.kind)&&!safeJump){if(ability==='shield'&&abilityT>0){abilityT=0;ability=null;invuln=1.2}else if(invuln<=0)die2('YOU GOT COOKED')}
+   }
+   if(o.z>11){cleanup(o);obs.splice(i,1)}
+ }
+ if(invuln>0)invuln-=dt;
+ if(abilityT>0){abilityT-=dt;abilityTime.textContent=Math.ceil(abilityT)+'s';if(ability==='turbo')spd=Math.min(40,spd+10);if(abilityT<=0){ability=null;abilityEl.classList.remove('show')}}else if(!ability)abilityEl.classList.remove('show');
+ if(ability==='magnet'){for(const o of obs)if(o.kind==='vimal'&&Math.abs(o.z-3)<18)o.x=THREE.MathUtils.damp(o.x,player.position.x,6,dt)}
+ if(runT>12){chaseStarted=true;chase=Math.min(100,chase+dt*(4.2-(ability==='turbo'?2.2:0)));chaseEl.classList.add('show');chaseBar.style.width=chase+'%';chaseText.textContent=Math.floor(chase)+'%';if(!police){police=makeCar(true);police.position.set(0,.02,8);scene.add(police)}if(police){police.position.x=THREE.MathUtils.damp(police.position.x,player.position.x,4,dt);police.position.z=8-Math.min(5,chase/22);if(chase>=100)die2('POLICE GOT YOU')}}
+ document.getElementById('score').textContent=String(Math.floor(score2)).padStart(5,'0');document.getElementById('coins').textContent=cash2;document.getElementById('speed').textContent=(spd/15).toFixed(1)+'x';
+ camera.position.x=THREE.MathUtils.damp(camera.position.x,player.position.x*.28,5,dt);camera.lookAt(player.position.x*.15,1.05,-5);
+ if(shake>0){camera.position.y+=Math.sin(performance.now()*.06)*shake;shake*=.9}
+}
+const oldRunning=running;running=false;
+function loop2(t){const d=Math.min(.033,(t-(loop2.last||t))/1000);loop2.last=t;update2(d);renderer.render(scene,camera);requestAnimationFrame(loop2)}requestAnimationFrame(loop2);
+document.getElementById('start')?.addEventListener('click',start2);document.getElementById('again')?.addEventListener('click',start2);
+})();
 </script></body></html>
