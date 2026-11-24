@@ -226,12 +226,15 @@ let A=false, lane2=1, tx=0, jump=0, slide=0, runT=0, score2=0, cash2=0, spd=15, 
 const L=[-2.7,0,2.7], obs=[];
 function img(type,z){const el=document.createElement('img');el.className='asset '+(type==='vimal'?'pickup':'');el.src=IMG[type];el.alt='';FX.appendChild(el);return el}
 function project(z,x,y=0){const dz=Math.max(1,z+12), s=Math.min(4.8,58/dz), px=innerWidth/2+x*s*innerWidth/900, py=innerHeight*.53+y*s*innerHeight/900+dz*0.8;return [px,py,s]}
-function makeCar(pol=false){const g=new THREE.Group(),body=mat(pol?0x10161b:0x26364a,.45,.25),white=mat(0xf2f2ee,.55),redm=mat(0xd51f2d,.5),bluem=mat(0x246bff,.35);
- const b=cube(1.5,.65,2.7,body,0,.65,0);g.add(b);b.position.set(0,.65,0);
- const cab=cube(1.15,.55,1.35,white,0,1.15,-.15);g.add(cab);
- for(const x of [-.68,.68])for(const z of [-.9,.9]){const w=new THREE.Mesh(new THREE.CylinderGeometry(.22,.22,.18,16),black);w.rotation.z=Math.PI/2;w.position.set(x,.27,z);g.add(w)}
- if(pol){for(const c of [redm,bluem]){const l=new THREE.Mesh(new THREE.BoxGeometry(.42,.12,.12),c);l.position.set(c===redm?-.24:.24,1.52,0);g.add(l)}}
- return g}
+function makeCar(pol=false){
+ const g=new THREE.Group(),body=mat(pol?0x10161b:0x26364a,.45,.25),white=mat(0xf2f2ee,.55),redm=mat(0xd51f2d,.5),bluem=mat(0x246bff,.35);
+ function part(geo,m,p){const q=new THREE.Mesh(geo,m);q.position.set(...p);q.castShadow=true;q.receiveShadow=true;g.add(q);return q}
+ part(new THREE.BoxGeometry(1.5,.65,2.7),body,[0,.65,0]);
+ part(new THREE.BoxGeometry(1.15,.55,1.35),white,[0,1.15,-.15]);
+ for(const x of [-.68,.68])for(const z of [-.9,.9]){const w=part(new THREE.CylinderGeometry(.22,.22,.18,16),black,[x,.27,z]);w.rotation.z=Math.PI/2}
+ if(pol){for(const [m,x] of [[redm,-.24],[bluem,.24]])part(new THREE.BoxGeometry(.42,.12,.12),m,[x,1.52,0])}
+ return g
+}
 function spawn2o(){
  const r=Math.random(), l=L[Math.floor(Math.random()*3)];
  let o={z:-100,x:l,lane:Math.floor((l+2.7)/2.7),kind:'scooter',el:null,mesh:null,jumpable:false,slideable:false,hit:false};
@@ -252,8 +255,20 @@ function doSlide(){if(!A||dead||jump>0.1)return;slide=1}
 addEventListener('keydown',e=>{if(e.key==='ArrowLeft'||e.key.toLowerCase()==='a')move2(-1);if(e.key==='ArrowRight'||e.key.toLowerCase()==='d')move2(1);if(e.key==='ArrowUp'||e.key===' ')doJump();if(e.key==='ArrowDown'||e.key.toLowerCase()==='s'||e.key.toLowerCase()==='c')doSlide()});
 document.getElementById('left')?.addEventListener('pointerdown',()=>move2(-1));document.getElementById('right')?.addEventListener('pointerdown',()=>move2(1));
 const touch=document.querySelector('.touch');if(touch){const b=document.createElement('button');b.textContent='↑';b.onpointerdown=doJump;touch.appendChild(b);const c=document.createElement('button');c.textContent='↓';c.onpointerdown=doSlide;touch.appendChild(c)}
-function start2(){A=true;dead=false;score2=0;cash2=0;spd=15;spawn2=.4;chase=0;chaseStarted=false;ability=null;abilityT=0;invuln=0;deathT=0;obs.splice(0).forEach(cleanup);if(police){scene.remove(police);police=null}document.getElementById('menu')?.classList.add('hide');document.getElementById('gameover')?.classList.add('hide');document.getElementById('score').textContent='00000';document.getElementById('coins').textContent='0';}
-function die2(reason='YOU GOT COOKED'){if(dead)return;dead=true;A=false;deathT=0;invuln=0;deathFX.style.animation='hit .6s';document.getElementById('overTitle').textContent=reason;document.getElementById('overText').textContent='Score '+score2+' · VIMAL '+cash2+' · The street had other plans.';document.getElementById('gameover')?.classList.remove('hide')}
+function start2(){
+ A=true;dead=false;score2=0;cash2=0;spd=15;spawn2=.4;chase=0;chaseStarted=false;ability=null;abilityT=0;invuln=0;deathT=0;lane2=1;tx=0;
+ player.rotation.set(0,0,0);player.scale.set(1,1,1);player.position.set(0,0,3);
+ obs.splice(0).forEach(cleanup);if(police){scene.remove(police);police=null}
+ chaseEl.classList.remove('show');chaseBar.style.width='0%';abilityEl.classList.remove('show');
+ document.getElementById('menu')?.classList.add('hide');document.getElementById('gameover')?.classList.add('hide');
+ document.getElementById('score').textContent='00000';document.getElementById('coins').textContent='0';
+}
+function die2(reason='YOU GOT COOKED'){
+ if(dead)return;dead=true;A=false;deathT=0;invuln=0;deathFX.style.animation='hit .6s';
+ document.getElementById('overTitle').textContent=reason;
+ document.getElementById('overText').textContent='Score '+score2+' · VIMAL '+cash2+' · The street had other plans.';
+ setTimeout(()=>document.getElementById('gameover')?.classList.remove('hide'),850)
+}
 function update2(dt){
  if(!A&&!dead)return;
  if(dead){deathT+=dt;player.rotation.z=THREE.MathUtils.damp(player.rotation.z,-1.45,7,dt);player.rotation.x=THREE.MathUtils.damp(player.rotation.x,.55,5,dt);player.position.y=THREE.MathUtils.damp(player.position.y,-.15,5,dt);camera.position.x+=Math.sin(deathT*35)*.08;if(deathT>.9){deathT=.9}return}
