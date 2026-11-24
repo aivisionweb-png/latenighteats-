@@ -1,52 +1,168 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><meta name="theme-color" content="#080908"><title>CHAPRI RUN — 3D STREET CHAOS</title>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#080806"><title>CHAPRI RUN — VIMAL STREET CHAOS</title>
 <style>
-*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#080908;color:#fff;font-family:Inter,Arial,sans-serif}#game{position:fixed;inset:0}canvas{display:block}.hud{position:fixed;z-index:5;top:0;left:0;right:0;padding:18px 22px;display:flex;justify-content:space-between;pointer-events:none;background:linear-gradient(#050505b8,transparent)}.logo{font:34px Impact,Anton,sans-serif;color:#ffd32f;letter-spacing:1px;text-shadow:3px 3px #7b4511}.logo span{color:#fff}.stats{display:flex;gap:20px;text-align:right}.stat label{display:block;color:#aaa;font-size:9px;letter-spacing:2px;font-weight:800}.stat b{font-size:22px}.speed{color:#ffd32f}.screen{position:fixed;z-index:10;inset:0;display:grid;place-items:center;background:radial-gradient(circle,#14150fcc,#030403e8);backdrop-filter:blur(4px)}.screen.hide{display:none}.card{width:min(470px,90vw);text-align:center;padding:36px 28px;border:1px solid #5a552e;border-radius:22px;background:#10110fe8;box-shadow:0 30px 100px #000}.eyebrow{font-size:9px;letter-spacing:4px;color:#ffd32f;font-weight:900}.title{font:clamp(64px,14vw,105px)/.82 Impact,Anton,sans-serif;color:#ffd32f;margin:16px 0 10px;text-shadow:6px 6px #7c4812}.title span{color:#fff}.card p{color:#aaa;line-height:1.6;font-size:13px}.start{width:100%;padding:16px;background:#ffd32f;color:#10100d;border:0;border-radius:10px;font-weight:1000;letter-spacing:1px;font-size:14px;box-shadow:0 5px 0 #936b11;cursor:pointer}.start:active{transform:translateY(3px);box-shadow:0 2px 0 #936b11}.hint{margin-top:14px;color:#777;font-size:10px}.touch{position:fixed;z-index:8;bottom:24px;left:0;right:0;display:flex;justify-content:space-between;padding:0 24px;pointer-events:none}.touch button{pointer-events:auto;width:72px;height:55px;border-radius:14px;border:1px solid #ffffff25;background:#111111bb;color:#ffd32f;font-size:25px}.brandtag{position:fixed;z-index:4;bottom:18px;left:50%;transform:translateX(-50%);font-size:9px;letter-spacing:3px;color:#ffffff77;pointer-events:none}@media(min-width:700px){.touch{display:none}}
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#080806;color:#fff;font-family:Inter,Arial,sans-serif}
+#game{position:fixed;inset:0}canvas{display:block}
+.hud{position:fixed;z-index:5;top:0;left:0;right:0;padding:17px 22px;display:flex;justify-content:space-between;pointer-events:none;background:linear-gradient(#050504d9,transparent)}
+.logo{font:36px Impact,Arial Black,sans-serif;color:#ffd32f;text-shadow:3px 3px #6f3510;letter-spacing:1px}.logo span{color:#fff}
+.stats{display:flex;gap:18px;text-align:right}.stat label{display:block;color:#aaa;font-size:8px;letter-spacing:2px;font-weight:900}.stat b{font-size:20px}.cash{color:#ffd32f!important}
+.screen{position:fixed;z-index:10;inset:0;display:grid;place-items:center;background:radial-gradient(circle,#191a12dd,#030302ee);backdrop-filter:blur(5px)}.hide{display:none!important}
+.card{width:min(500px,92vw);text-align:center;padding:34px 28px;border:1px solid #5d572c;border-radius:23px;background:#11120fe8;box-shadow:0 30px 100px #000}.eyebrow{font-size:9px;letter-spacing:4px;color:#ffd32f;font-weight:900}
+.title{font:clamp(66px,15vw,110px)/.82 Impact,Arial Black,sans-serif;color:#ffd32f;margin:15px 0 12px;text-shadow:6px 6px #71390d}.title span{color:#fff}
+.card p{color:#aaa;line-height:1.6;font-size:13px;margin:0 0 20px}.start{width:100%;padding:16px;background:#ffd32f;color:#111;border:0;border-radius:10px;font-weight:1000;letter-spacing:1px;font-size:14px;box-shadow:0 5px 0 #916a0d;cursor:pointer}.start:active{transform:translateY(3px);box-shadow:0 2px 0 #916a0d}
+.hint{margin-top:14px;color:#777;font-size:10px}.touch{position:fixed;z-index:8;bottom:24px;left:0;right:0;display:flex;justify-content:space-between;padding:0 24px;pointer-events:none}.touch button{pointer-events:auto;width:74px;height:55px;border-radius:14px;border:1px solid #fff2;background:#111c;color:#ffd32f;font-size:26px}.tag{position:fixed;z-index:4;bottom:17px;left:50%;transform:translateX(-50%);font-size:8px;letter-spacing:3px;color:#ffffff66;white-space:nowrap;pointer-events:none}
+.loading{position:fixed;z-index:20;inset:0;display:grid;place-items:center;background:#090a07}.loading b{font:38px Impact;color:#ffd32f;letter-spacing:2px}.loading small{display:block;text-align:center;margin-top:8px;color:#777;font:10px Arial;letter-spacing:2px}
+@media(min-width:700px){.touch{display:none}}@media(max-width:620px){.hud{padding:12px}.logo{font-size:28px}.stats{gap:8px}.stat b{font-size:15px}.stat label{font-size:7px}}
 </style></head><body>
-<div id="game"></div><div class="hud"><div class="logo">CHAPRI <span>RUN</span></div><div class="stats"><div><label>SCORE</label><b id="score">00000</b></div><div><label>₹ CASH</label><b id="coins">0</b></div><div><label>BEST</label><b id="best">00000</b></div><div><label>SPEED</label><b class="speed" id="speed">1.0x</b></div></div></div>
-<div class="screen" id="menu"><div class="card"><div class="eyebrow">3D INDIAN STREET CHAOS</div><div class="title">CHAPRI <span>RUN</span></div><p>Autos. Dogs. Potholes. Cricket balls. Survive the street and stack the cash.</p><button class="start" id="start">START THE RUN →</button><div class="hint">A / D or ← / → to change lanes · tap left/right on mobile</div></div></div>
-<div class="screen hide" id="gameover"><div class="card"><div class="eyebrow">TRAFFIC POLICE REPORT</div><div class="title" id="overTitle">COOKED.</div><p id="overText"></p><button class="start" id="again">RUN IT BACK ↗</button><div class="hint">Your best score is saved on this device.</div></div></div>
-<div class="touch"><button id="left">←</button><button id="right">→</button></div><div class="brandtag">NO BRAKES · NO SHAME · ONE MORE RUN</div>
+<div class="loading" id="loading"><div><b>CHAPRI RUN</b><small>LOADING THE STREET...</small></div></div>
+<div id="game"></div>
+<div class="hud"><div class="logo">CHAPRI <span>RUN</span></div><div class="stats">
+<div class="stat"><label>SCORE</label><b id="score">00000</b></div>
+<div class="stat"><label>VIMAL</label><b class="cash" id="coins">0</b></div>
+<div class="stat"><label>BEST</label><b id="best">00000</b></div>
+<div class="stat"><label>SPEED</label><b class="cash" id="speed">1.0x</b></div></div></div>
+<div class="screen" id="menu"><div class="card"><div class="eyebrow">3D INDIAN STREET CHAOS</div><div class="title">CHAPRI <span>RUN</span></div><p>Autos. Dogs. Potholes. Cricket balls. Grab <b style="color:#ffd32f">VIMAL</b> packets and survive the street.</p><button class="start" id="start">START THE RUN →</button><div class="hint">A / D or ← / → to change lanes · tap left/right on mobile</div></div></div>
+<div class="screen hide" id="gameover"><div class="card"><div class="eyebrow">TRAFFIC POLICE REPORT</div><div class="title" id="overTitle">COOKED.</div><p id="overText"></p><button class="start" id="again">RUN IT BACK ↗</button><div class="hint">Best score is saved on this device.</div></div></div>
+<div class="touch"><button id="left">←</button><button id="right">→</button></div><div class="tag">NO BRAKES · NO SHAME · VIMAL IS MONEY</div>
+
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.161/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.161/examples/jsm/"}}</script>
 <script type="module">
-import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.161/build/three.module.js';
-const scene=new THREE.Scene();scene.background=new THREE.Color(0x8e5940);scene.fog=new THREE.Fog(0x8e5940,25,115);
-const camera=new THREE.PerspectiveCamera(58,innerWidth/innerHeight,.1,180);camera.position.set(0,5.2,10);camera.lookAt(0,1,0);
-const renderer=new THREE.WebGLRenderer({antialias:true});renderer.setPixelRatio(Math.min(devicePixelRatio,1.7));renderer.setSize(innerWidth,innerHeight);renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;document.getElementById('game').appendChild(renderer.domElement);
-const hemi=new THREE.HemisphereLight(0xffd9ad,0x292b2d,2.1);scene.add(hemi);const sun=new THREE.DirectionalLight(0xffe0b0,3.4);sun.position.set(-25,35,20);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);scene.add(sun);
-const roadMat=new THREE.MeshStandardMaterial({color:0x353634,roughness:.9}),sideMat=new THREE.MeshStandardMaterial({color:0x51402e,roughness:1}),yellow=new THREE.MeshStandardMaterial({color:0xffd32f,roughness:.45}),dark=new THREE.MeshStandardMaterial({color:0x151616,roughness:.7}),skin=new THREE.MeshStandardMaterial({color:0xb87852,roughness:.8}),shirt=new THREE.MeshStandardMaterial({color:0xff344d,roughness:.65}),jeans=new THREE.MeshStandardMaterial({color:0x18284b,roughness:.8});
-function box(w,h,d,mat,x=0,y=0,z=0){let m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat);m.position.set(x,y,z);m.castShadow=m.receiveShadow=true;scene.add(m);return m}
-const road=box(15,.25,180,roadMat,0,-.15,-55), leftSide=box(18,.5,180,sideMat,-16,-.05,-55),rightSide=box(18,.5,180,sideMat,16,-.05,-55);
-for(let x of [-2.65,2.65])for(let i=0;i<34;i++){let m=box(.13,.025,2.7,yellow,x,.02,-i*5-2);m.userData.loop=true}
-function building(x,z,h,w){let m=box(w,h,8,new THREE.MeshStandardMaterial({color:new THREE.Color().setHSL(.07+Math.random()*.04,.35,.20+.08*Math.random())}),x,h/2,z);for(let yy=2;yy<h-1;yy+=2.2){for(let xx=-w/2+1;xx<w/2-0.5;xx+=2){let win=box(.65,.75,.06,new THREE.MeshStandardMaterial({color:0xffc95d,emissive:0x553b12,emissiveIntensity:.5}),x+xx,yy,z-4.03);win.userData.decor=true}}}
-for(let i=0;i<22;i++){let z=-i*8-12;building(-11-Math.random()*4,z,5+Math.random()*8,5+Math.random()*4);building(11+Math.random()*4,z-3,5+Math.random()*8,5+Math.random()*4)}
-function createPlayer(){let g=new THREE.Group();g.position.set(0,0,3);scene.add(g);
-let torso=new THREE.Mesh(new THREE.BoxGeometry(.72,1.15,.45),shirt);torso.position.y=1.55;torso.castShadow=true;g.add(torso);
-let head=new THREE.Mesh(new THREE.SphereGeometry(.34,20,16),skin);head.position.y=2.42;head.castShadow=true;g.add(head);
-let hair=new THREE.Mesh(new THREE.SphereGeometry(.36,20,12,0,Math.PI*2,0,Math.PI*.45),dark);hair.position.y=2.57;g.add(hair);
-for(let s of [-1,1]){let arm=new THREE.Mesh(new THREE.CapsuleGeometry(.13,.65,6,10),shirt);arm.position.set(s*.5,1.55,0);arm.rotation.z=s*.25;arm.castShadow=true;arm.userData.arm=s;g.add(arm);let leg=new THREE.Mesh(new THREE.CapsuleGeometry(.15,.7,6,10),jeans);leg.position.set(s*.22,.65,0);leg.userData.leg=s;leg.castShadow=true;g.add(leg)}
-let shoeMat=new THREE.MeshStandardMaterial({color:0x090909});for(let s of [-1,1]){let sh=new THREE.Mesh(new THREE.BoxGeometry(.3,.16,.55),shoeMat);sh.position.set(s*.22,.17,-.12);g.add(sh)}
-let chain=new THREE.Mesh(new THREE.TorusGeometry(.28,.025,8,30),yellow);chain.rotation.x=Math.PI/2;chain.position.set(0,1.9,.24);g.add(chain);return g}
-const player=createPlayer();let lane=1,targetX=0;const laneX=[-2.65,0,2.65];let running=false,elapsed=0,score=0,cash=0,best=+localStorage.getItem('chapri3dBest')||0,spawn=0,speed=14,entities=[],clock=new THREE.Clock();
+import * as THREE from 'three';
+import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
+
+const scene=new THREE.Scene();
+scene.background=new THREE.Color(0x9a6142);
+scene.fog=new THREE.Fog(0x9a6142,28,125);
+const camera=new THREE.PerspectiveCamera(58,innerWidth/innerHeight,.1,180);
+camera.position.set(0,4.8,10.5);
+const renderer=new THREE.WebGLRenderer({antialias:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio,1.8));renderer.setSize(innerWidth,innerHeight);
+renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.outputColorSpace=THREE.SRGBColorSpace;
+document.getElementById('game').appendChild(renderer.domElement);
+
+scene.add(new THREE.HemisphereLight(0xffe0bd,0x242629,2.1));
+const sun=new THREE.DirectionalLight(0xffd7a3,3.7);sun.position.set(-28,38,22);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);scene.add(sun);
+
+const mat=(c,r=.8,m=0)=>new THREE.MeshStandardMaterial({color:c,roughness:r,metalness:m});
+const road=mat(0x343633,1), dirt=mat(0x57412c,1), yellow=mat(0xffd32f,.4), red=mat(0xd92e36,.65), green=mat(0x168451,.7), black=mat(0x111212,.8), skin=mat(0xb87350,.9);
+
+function cube(w,h,d,m,x,y,z){const o=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),m);o.position.set(x,y,z);o.castShadow=o.receiveShadow=true;scene.add(o);return o}
+cube(15,.25,190,road,0,-.15,-58);cube(18,.5,190,dirt,-16,-.05,-58);cube(18,.5,190,dirt,16,-.05,-58);
+const laneX=[-2.7,0,2.7];
+for(const x of [-1.35,1.35])for(let i=0;i<38;i++){const l=cube(.09,.025,2.6,yellow,x,.02,-i*5-3);l.userData.loop=true}
+
+function building(x,z,h,w,c){
+ const b=cube(w,h,8,mat(c,1),x,h/2,z);
+ for(let yy=2;yy<h-1;yy+=2.25)for(let xx=-w/2+1;xx<w/2-.5;xx+=1.9){
+  const win=cube(.55,.68,.06,mat(0xffc75d,.4),x+xx,yy,z-4.03);win.userData.decor=true;
+ }
+ return b;
+}
+for(let i=0;i<25;i++){let z=-i*8-12;building(-11-Math.random()*4,z,5+Math.random()*9,5+Math.random()*4,0x594032+Math.floor(Math.random()*0x222222));building(11+Math.random()*4,z-3,5+Math.random()*9,5+Math.random()*4,0x463a31+Math.floor(Math.random()*0x222222));}
+function sign(x,z,text,rot=0){
+ const cv=document.createElement('canvas');cv.width=512;cv.height=128;const c=cv.getContext('2d');c.fillStyle='#171713';c.fillRect(0,0,512,128);c.fillStyle='#ffd32f';c.font='bold 58px Arial';c.textAlign='center';c.fillText(text,256,82);
+ const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(cv),transparent:true}));sp.position.set(x,4.2,z);sp.scale.set(5.5,1.38,1);sp.rotation.y=rot;scene.add(sp);
+}
+sign(-7,-18,'PAN MASALA');sign(7,-34,'CHAI • COLD DRINK');sign(-7,-57,'VIMAL KING');
+
+let player=new THREE.Group();player.position.set(0,0,3);scene.add(player);
+let mixer=null,ready=false;
+const loader=new GLTFLoader();
+loader.load('https://threejs.org/examples/models/gltf/Xbot.glb',g=>{
+ player.add(g.scene);g.scene.scale.setScalar(1.55);g.scene.position.y=0;g.scene.traverse(o=>{if(o.isMesh){o.castShadow=true;if(o.material?.color){o.material=o.material.clone();o.material.color.set(0xd9353f);}}});
+ mixer=new THREE.AnimationMixer(g.scene);
+ const runClip=g.animations.find(a=>/run/i.test(a.name))||g.animations[0];if(runClip)mixer.clipAction(runClip).play();
+ // chapri accessories
+ const scarf=cube(.9,.12,1.7,green,0,1.72,0);scarf.rotation.z=.18;scarf.position.set(0,1.72,.05);scarf.userData.accessory=true;player.add(scarf);
+ const chain=new THREE.Mesh(new THREE.TorusGeometry(.28,.025,8,28),yellow);chain.rotation.x=Math.PI/2;chain.position.set(0,1.72,.48);player.add(chain);
+ ready=true;document.getElementById('loading').classList.add('hide');
+},undefined,()=>{document.getElementById('loading').classList.add('hide');ready=true;});
+
+function makeAuto(){
+ const g=new THREE.Group();const body=new THREE.Mesh(new THREE.BoxGeometry(1.45,.7,2.15),green);body.position.y=.65;body.castShadow=true;g.add(body);
+ const roof=new THREE.Mesh(new THREE.BoxGeometry(1.15,.65,1.2),black);roof.position.set(0,1.25,.05);roof.castShadow=true;g.add(roof);
+ const front=new THREE.Mesh(new THREE.BoxGeometry(1.0,.3,.06),yellow);front.position.set(0,.72,1.12);g.add(front);
+ for(const x of [-.64,.64])for(const z of [-.68,.68]){const w=new THREE.Mesh(new THREE.CylinderGeometry(.2,.2,.16,18),black);w.rotation.z=Math.PI/2;w.position.set(x,.25,z);g.add(w);}
+ return g;
+}
+function makeDog(){
+ const g=new THREE.Group(),brown=mat(0x70452e,.95);
+ const body=new THREE.Mesh(new THREE.CapsuleGeometry(.48,.85,8,12),brown);body.rotation.z=Math.PI/2;body.position.y=.72;body.castShadow=true;g.add(body);
+ const head=new THREE.Mesh(new THREE.SphereGeometry(.42,18,14),brown);head.position.set(0,1.02,.68);head.scale.set(1,1,.85);g.add(head);
+ const muzzle=new THREE.Mesh(new THREE.SphereGeometry(.2,14,10),mat(0x2c211c));muzzle.position.set(0,.94,1.02);g.add(muzzle);
+ for(const x of [-.3,.3])for(const z of [-.35,.35]){const leg=new THREE.Mesh(new THREE.CapsuleGeometry(.09,.5,5,8),brown);leg.position.set(x,.35,z);g.add(leg);}
+ for(const x of [-.22,.22]){const ear=new THREE.Mesh(new THREE.ConeGeometry(.16,.4,6),brown);ear.position.set(x,1.38,.62);ear.rotation.x=-.4;g.add(ear);}
+ return g;
+}
+function makeScooter(){
+ const g=new THREE.Group(),pink=mat(0xf2388a,.55),lime=mat(0xb9f23b,.5);
+ const deck=new THREE.Mesh(new THREE.BoxGeometry(1.05,.25,1.75),pink);deck.position.y=.55;g.add(deck);
+ const stem=new THREE.Mesh(new THREE.CylinderGeometry(.09,.12,1.45,12),lime);stem.position.set(0,1.18,.62);stem.rotation.x=-.16;g.add(stem);
+ const handle=new THREE.Mesh(new THREE.BoxGeometry(1.05,.09,.12),black);handle.position.set(0,1.78,.55);g.add(handle);
+ for(const z of [-.65,.65]){const w=new THREE.Mesh(new THREE.CylinderGeometry(.27,.27,.15,18),black);w.rotation.z=Math.PI/2;w.position.set(0,.28,z);g.add(w);}
+ return g;
+}
+function makePothole(){
+ const g=new THREE.Group();const ring=new THREE.Mesh(new THREE.CylinderGeometry(.8,.95,.08,28),black);ring.rotation.x=Math.PI/2;ring.position.y=.035;g.add(ring);
+ for(let i=0;i<7;i++){const stone=new THREE.Mesh(new THREE.DodecahedronGeometry(.08+Math.random()*.08),mat(0x77736a));stone.position.set((Math.random()-.5)*1.2,.12,(Math.random()-.5)*.9);g.add(stone);}return g;
+}
+function makeBall(){const g=new THREE.Group();const b=new THREE.Mesh(new THREE.SphereGeometry(.25,18,14),red);g.add(b);const seam=new THREE.Mesh(new THREE.TorusGeometry(.17,.018,6,20),yellow);seam.rotation.y=.7;g.add(seam);return g;}
+function makeVimal(){
+ const g=new THREE.Group();
+ const pack=new THREE.Mesh(new THREE.BoxGeometry(.7,.95,.18),red);pack.castShadow=true;g.add(pack);
+ const label=new THREE.Mesh(new THREE.BoxGeometry(.52,.42,.012),yellow);label.position.z=.1;g.add(label);
+ const cv=document.createElement('canvas');cv.width=256;cv.height=128;const c=cv.getContext('2d');c.fillStyle='#fff3a0';c.fillRect(0,0,256,128);c.fillStyle='#d51f28';c.font='bold 46px Arial';c.textAlign='center';c.fillText('VIMAL',128,70);c.font='bold 16px Arial';c.fillText('₹ STREET CASH',128,96);
+ const tx=new THREE.CanvasTexture(cv);const front=new THREE.Mesh(new THREE.PlaneGeometry(.52,.42),new THREE.MeshBasicMaterial({map:tx,transparent:true}));front.position.z=.115;g.add(front);
+ g.userData.coin=true;return g;
+}
+const makers=[makeAuto,makeDog,makeScooter,makePothole,makeBall];
+let entities=[],lane=1,targetX=0,running=false,elapsed=0,score=0,cash=0,best=+(localStorage.getItem('chapri3dBest')||0),spawn=.6,speed=15;
 document.getElementById('best').textContent=String(best).padStart(5,'0');
-function auto(){let g=new THREE.Group();let body=new THREE.Mesh(new THREE.BoxGeometry(1.35,.65,2),new THREE.MeshStandardMaterial({color:0x20a66a,metalness:.1,roughness:.55}));body.position.y=.65;body.castShadow=true;g.add(body);let roof=new THREE.Mesh(new THREE.BoxGeometry(1.1,.55,1.1),new THREE.MeshStandardMaterial({color:0x26352e,roughness:.7}));roof.position.set(0,1.18,.1);g.add(roof);for(let x of [-.55,.55])for(let z of [-.65,.65]){let w=new THREE.Mesh(new THREE.CylinderGeometry(.2,.2,.18,16),dark);w.rotation.z=Math.PI/2;w.position.set(x,z<0?.05:-.05,.32);g.add(w)}return g}
-function dog(){let g=new THREE.Group(),m=new THREE.MeshStandardMaterial({color:0x7b5035,roughness:.9});let b=new THREE.Mesh(new THREE.BoxGeometry(.75,.48,1.2),m);b.position.y=.58;g.add(b);let h=new THREE.Mesh(new THREE.SphereGeometry(.32,12,10),m);h.position.set(0,.88,.65);g.add(h);for(let x of [-.25,.25])for(let z of [-.35,.35]){let l=new THREE.Mesh(new THREE.CylinderGeometry(.07,.07,.45,8),m);l.position.set(x,.3,z);g.add(l)}return g}
-function barrier(){let g=new THREE.Group(),m=new THREE.MeshStandardMaterial({color:0xf05b35});for(let x of [-.65,0,.65]){let b=new THREE.Mesh(new THREE.BoxGeometry(.12,1.2,.12),m);b.position.set(x,.6,0);g.add(b)}let bar=new THREE.Mesh(new THREE.BoxGeometry(1.8,.18,.18),yellow);bar.position.y=.8;g.add(bar);return g}
-function ball(){let g=new THREE.Group();let b=new THREE.Mesh(new THREE.SphereGeometry(.25,18,12),new THREE.MeshStandardMaterial({color:0x8c3d25}));g.add(b);return g}
-function pothole(){let g=new THREE.Group();let p=new THREE.Mesh(new THREE.CylinderGeometry(.7,.8,.06,24),dark);p.rotation.x=Math.PI/2;p.position.y=.03;g.add(p);return g}
-const types=[auto,dog,barrier,ball,pothole];
-function spawnEntity(){let type=types[Math.floor(Math.random()*types.length)],o=type();o.position.set(laneX[Math.floor(Math.random()*3)],0,-80);o.userData.hit=false;o.userData.type=type;scene.add(o);entities.push(o)}
-function coin(){let c=new THREE.Mesh(new THREE.TorusGeometry(.25,.08,10,24),yellow);c.rotation.y=Math.PI/2;c.position.set(laneX[Math.floor(Math.random()*3)],1,-80);scene.add(c);entities.push(c);c.userData.coin=true}
-function reset(){entities.forEach(e=>scene.remove(e));entities=[];lane=1;targetX=0;player.position.set(0,0,3);elapsed=score=cash=0;spawn=.7;speed=14;running=true;document.getElementById('menu').classList.add('hide');document.getElementById('gameover').classList.add('hide');clock.start()}
-function move(d){if(!running)return;lane=Math.max(0,Math.min(2,lane+d));targetX=laneX[lane]}
-function gameOver(){running=false;best=Math.max(best,score);localStorage.setItem('chapri3dBest',best);document.getElementById('best').textContent=String(best).padStart(5,'0');document.getElementById('overTitle').textContent=score>=best?'NEW STREET KING.':'COOKED.';document.getElementById('overText').textContent='Score '+score+' · ₹ '+cash+' · Best '+best+'. You got clipped by the streets.';document.getElementById('gameover').classList.remove('hide')}
-function tick(){requestAnimationFrame(tick);let dt=Math.min(clock.getDelta(),.04);if(running){elapsed+=dt;speed=14+Math.min(18,elapsed*.32);score=Math.floor(elapsed*12+cash*55);spawn-=dt;if(spawn<=0){spawnEntity();if(Math.random()<.45)coin();spawn=Math.max(.42,.9-elapsed*.004)}for(let e of entities){e.position.z+=speed*dt;if(e.userData.coin){e.rotation.z+=dt*6;e.rotation.y+=dt*4;if(e.position.distanceTo(player.position)<1.25){cash++;e.position.z=999}}else{let dx=Math.abs(e.position.x-player.position.x);if(e.position.z>1.7&&e.position.z<4.1&&dx<1.15){gameOver();break}}if(e.userData.type===ball)e.rotation.x+=dt*8}entities=entities.filter(e=>{if(e.position.z>10||e.position.z===999){scene.remove(e);return false}return true});
-player.position.x=THREE.MathUtils.damp(player.position.x,targetX,10,dt);player.rotation.z=THREE.MathUtils.damp(player.rotation.z,(targetX-player.position.x)*-.12,8,dt);let run=Math.sin(elapsed*13)*.45;player.children.forEach(c=>{if(c.userData.leg)c.rotation.x=run*c.userData.leg;if(c.userData.arm)c.rotation.x=-run*c.userData.arm});player.position.y=Math.abs(Math.sin(elapsed*13))*.045;
-for(let m of scene.children)if(m.userData.loop){m.position.z+=speed*dt;if(m.position.z>8)m.position.z-=170}
-camera.position.x=THREE.MathUtils.damp(camera.position.x,player.position.x*.32,4,dt);camera.position.z=THREE.MathUtils.damp(camera.position.z,10.2,3,dt);camera.lookAt(player.position.x*.18,1.15,-4);
-document.getElementById('score').textContent=String(score).padStart(5,'0');document.getElementById('coins').textContent=cash;document.getElementById('speed').textContent=(speed/14).toFixed(1)+'x'}renderer.render(scene,camera)}
-document.getElementById('start').onclick=reset;document.getElementById('again').onclick=reset;document.getElementById('left').onpointerdown=()=>move(-1);document.getElementById('right').onpointerdown=()=>move(1);
-addEventListener('keydown',e=>{if(['ArrowLeft','ArrowRight','a','A','d','D'].includes(e.key))e.preventDefault();if(e.key==='ArrowLeft'||e.key.toLowerCase()==='a')move(-1);if(e.key==='ArrowRight'||e.key.toLowerCase()==='d')move(1);if((e.key==='Enter'||e.key===' ')&&!running)reset()});
-addEventListener('pointerdown',e=>{if(!running||e.target.closest('button'))return;move(e.clientX<innerWidth/2?-1:1)});
-addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)});
-tick();
+function spawnEntity(){
+ const isCoin=Math.random()<.30;const o=isCoin?makeVimal():makers[Math.floor(Math.random()*makers.length)]();
+ o.position.set(laneX[Math.floor(Math.random()*3)],isCoin?.75:0,-95);
+ o.rotation.y=(Math.random()-.5)*.5;o.userData.coin=isCoin;o.userData.hit=false;scene.add(o);entities.push(o);
+}
+function move(d){if(!running)return;lane=Math.max(0,Math.min(2,lane+d));targetX=laneX[lane];}
+function reset(){
+ entities.forEach(e=>scene.remove(e));entities=[];lane=1;targetX=0;player.position.set(0,0,3);elapsed=score=cash=0;spawn=.45;speed=15;running=true;
+ document.getElementById('menu').classList.add('hide');document.getElementById('gameover').classList.add('hide');
+}
+function over(){
+ running=false;const newBest=score>best;if(newBest){best=score;localStorage.setItem('chapri3dBest',best);document.getElementById('best').textContent=String(best).padStart(5,'0');}
+ document.getElementById('overTitle').textContent=newBest?'NEW STREET KING.':'COOKED.';
+ document.getElementById('overText').textContent='Score '+score+' · VIMAL '+cash+' · Best '+best+'. The street had other plans.';
+ document.getElementById('gameover').classList.remove('hide');
+}
+function frame(dt){
+ if(running){
+  elapsed+=dt;speed=15+Math.min(23,elapsed*.38);score=Math.floor(elapsed*14+cash*80);spawn-=dt;
+  if(spawn<=0){spawnEntity();spawn=Math.max(.38,.78-elapsed*.0035)+Math.random()*.18;}
+  for(const e of entities){
+   e.position.z+=speed*dt;
+   if(e.userData.coin){
+    e.rotation.y+=dt*3;e.rotation.z=Math.sin(elapsed*5+e.position.z)*.15;
+    if(Math.abs(e.position.z-player.position.z)<1.25&&Math.abs(e.position.x-player.position.x)<1.15){cash++;e.position.z=999;}
+   }else if(e.position.z>1.6&&e.position.z<4.1&&Math.abs(e.position.x-player.position.x)<1.08){over();break;}
+   if(e.userData.coin&&e.position.z<4)e.position.y=.75+Math.sin(elapsed*7+e.position.z)*.12;
+  }
+  entities=entities.filter(e=>{if(e.position.z>11||e.position.z===999){scene.remove(e);return false}return true;});
+  player.position.x=THREE.MathUtils.damp(player.position.x,targetX,11,dt);
+  player.rotation.z=THREE.MathUtils.damp(player.rotation.z,(targetX-player.position.x)*-.12,8,dt);
+  if(mixer)mixer.update(dt);
+  camera.position.x=THREE.MathUtils.damp(camera.position.x,player.position.x*.28,4,dt);camera.lookAt(player.position.x*.15,1.15,-4);
+  document.getElementById('score').textContent=String(score).padStart(5,'0');document.getElementById('coins').textContent=cash;document.getElementById('speed').textContent=(speed/15).toFixed(1)+'x';
+  for(const o of scene.children)if(o.userData.loop){o.position.z+=speed*dt;if(o.position.z>9)o.position.z-=190;}
+ }
+ renderer.render(scene,camera);
+ requestAnimationFrame(t=>{const d=Math.min(.04,(t-(frame.last||t))/1000);frame.last=t;frame(d)});
+}
+frame.last=performance.now();requestAnimationFrame(()=>frame(0));
+document.getElementById('start').onclick=reset;document.getElementById('again').onclick=reset;
+document.getElementById('left').onpointerdown=()=>move(-1);document.getElementById('right').onpointerdown=()=>move(1);
+addEventListener('keydown',e=>{if(['ArrowLeft','ArrowRight','a','A','d','D'].includes(e.key))e.preventDefault();if(e.key==='ArrowLeft'||e.key.toLowerCase()==='a')move(-1);if(e.key==='ArrowRight'||e.key.toLowerCase()==='d')move(1);if((e.key==='Enter'||e.key===' ')&&!running)reset();});
+addEventListener('pointerdown',e=>{if(!running||e.target.closest('button'))return;move(e.clientX<innerWidth/2?-1:1);});
+addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);});
 </script></body></html>
